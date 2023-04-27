@@ -17,8 +17,8 @@ public class ItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Item get(long id) {
-        return itemStorage.get(id);
+    public Optional<Item> get(long id) {
+        return Optional.ofNullable(itemStorage.get(id));
     }
 
     @Override
@@ -42,6 +42,6 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public Item update(Item item) {
         itemStorage.replace(item.getId(), item);
-        return itemStorage.get(item.getId());
+        return item;
     }
 }

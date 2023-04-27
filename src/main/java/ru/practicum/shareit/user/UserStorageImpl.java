@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
@@ -14,7 +15,7 @@ public class UserStorageImpl implements UserStorage {
     public User create(User user) {
         user.setId(++id);
         userStorage.put(id, user);
-        return userStorage.get(id);
+        return user;
     }
 
     @Override
@@ -23,14 +24,14 @@ public class UserStorageImpl implements UserStorage {
     }
 
     @Override
-    public User get(long id) {
-        return userStorage.get(id);
+    public Optional<User> get(long id) {
+        return Optional.ofNullable(userStorage.get(id));
     }
 
     @Override
     public User update(User user) {
         userStorage.replace(user.getId(), user);
-        return userStorage.get(user.getId());
+        return user;
     }
 
     @Override

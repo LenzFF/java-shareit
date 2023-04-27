@@ -4,14 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserServiceImpl(UserStorage userStorage) {
@@ -19,53 +21,51 @@ public class UserServiceImpl implements UserService {
     }
 
     private User getUserOrThrowException(long id) {
-        User user = userStorage.get(id);
-        if (user == null) {
-            throw new DataNotFoundException("Пользователь не найден, id - " + id);
-        }
-        return user;
+        return userStorage.get(id)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + id));
     }
 
-    private void validateUser(User newUser) throws DataAlreadyExistException {
-        if (newUser.getEmail() == null || !newUser.getEmail().contains("@")) {
-            throw new ValidationException("Ошибка данных");
-        }
-
-        if (userStorage.getAll().stream().anyMatch(x -> x.getEmail().equals((newUser.getEmail())))) {
-            throw new DataAlreadyExistException(newUser.getEmail() + " email уже используется");
+    private void checkEmail(UserDto userDto) {
+        if (userStorage.getAll().stream().anyMatch(x -> x.getEmail().equals((userDto.getEmail())))) {
+            throw new DataAlreadyExistException(userDto.getEmail() + " email уже используется");
         }
     }
 
     @Override
-    public User create(User user) throws DataAlreadyExistException {
-        validateUser(user);
-        return userStorage.create(user);
+    public UserDto create(UserDto userDto) {
+        checkEmail(userDto);
+        User user = userStorage.create(UserMapper.fromUserDto(userDto));
+        return UserMapper.toUserDto(user);
     }
 
     @Override
-    public List<User> getAll() {
-        return userStorage.getAll();
+    public List<UserDto> getAll() {
+        return userStorage.getAll().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User get(long id) {
-        return getUserOrThrowException(id);
+    public UserDto get(long id) {
+        return UserMapper.toUserDto(getUserOrThrowException(id));
     }
 
     @Override
-    public User update(long id, User updatedUser) throws DataAlreadyExistException {
+    public UserDto update(long id, UserDto updatedUserDto) {
         User user = getUserOrThrowException(id);
 
-        if (updatedUser.getEmail() != null) {
-            if (!user.getEmail().equals(updatedUser.getEmail()))
-                validateUser(updatedUser);
+        if (updatedUserDto.getEmail() != null && !updatedUserDto.getEmail().isBlank()) {
+            if (!user.getEmail().equals(updatedUserDto.getEmail()))
+                checkEmail(updatedUserDto);
 
-            user.setEmail(updatedUser.getEmail());
+            user.setEmail(updatedUserDto.getEmail());
         }
 
-        if (updatedUser.getName() != null) user.setName(updatedUser.getName());
+        if (updatedUserDto.getName() != null && !updatedUserDto.getName().isBlank()) {
+            user.setName(updatedUserDto.getName());
+        }
 
-        return userStorage.update(user);
+        return UserMapper.toUserDto(user);
     }
 
     @Override

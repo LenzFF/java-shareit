@@ -1,14 +1,16 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.Create;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
+
+@Validated
 @RestController
 @RequestMapping("/items")
 public class ItemController {
@@ -21,14 +23,15 @@ public class ItemController {
     }
 
     @PostMapping
+    @Validated(Create.class)
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                              @RequestBody ItemDto itemDto) {
+                              @Valid @RequestBody ItemDto itemDto) {
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long id,
-                              @RequestBody ItemDto itemDto) {
+                              @Valid @RequestBody ItemDto itemDto) {
         itemDto.setId(id);
         return itemService.update(userId, itemDto);
     }
@@ -46,7 +49,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                    @RequestParam(value = "text", required = true) String text) {
+                                    @RequestParam(value = "text") String text) {
         return itemService.searchItem(userId, text);
     }
 }

@@ -2,11 +2,9 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -15,10 +13,13 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode
 public class ItemDto {
     private long id;
-    @NotNull
+
+    @NotBlank(groups = {Create.class})
     private String name;
-    @NotNull
+
+    @NotBlank(groups = {Create.class})
     private String description;
-    @NotNull
+
+    @NotNull(groups = {Create.class})
     private Boolean available;
 }

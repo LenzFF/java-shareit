@@ -3,11 +3,12 @@ package ru.practicum.shareit.item;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemStorage {
     List<Item> getAll();
 
-    Item get(long id);
+    Optional<Item> get(long id);
 
     void delete(long id);
 

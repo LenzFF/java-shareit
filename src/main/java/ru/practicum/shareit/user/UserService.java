@@ -1,18 +1,17 @@
 package ru.practicum.shareit.user;
 
-import ru.practicum.shareit.exception.DataAlreadyExistException;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
-
 public interface UserService {
-    User create(User user) throws DataAlreadyExistException;
+    UserDto create(UserDto userDto);
 
-    List<User> getAll();
+    List<UserDto> getAll();
 
-    User get(long id);
+    UserDto get(long id);
 
-    User update(long id, User updatedUser) throws DataAlreadyExistException;
+    UserDto update(long id, UserDto updatedUserDto);
 
     void delete(long id);
 
