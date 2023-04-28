@@ -1,34 +1,26 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.Marker;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
 import java.util.List;
 
-@Validated
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @PostMapping
-    @Validated(Marker.OnCreate.class)
-    public UserDto createUser(@RequestBody @Valid UserDto userDto) {
+    public UserDto createUser(@RequestBody @Validated(Marker.OnCreate.class) UserDto userDto) {
         return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")
-    @Validated(Marker.OnUpdate.class)
-    public UserDto updateUser(@PathVariable long id, @RequestBody @Valid UserDto userDto) {
+    public UserDto updateUser(@PathVariable long id, @RequestBody @Validated(Marker.OnUpdate.class) UserDto userDto) {
         return userService.update(id, userDto);
     }
 

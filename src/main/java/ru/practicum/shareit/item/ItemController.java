@@ -1,37 +1,30 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.Create;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.Marker;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
-@Validated
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
 
-    @Autowired
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
-
     @PostMapping
-    @Validated(Create.class)
     public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                              @Valid @RequestBody ItemDto itemDto) {
+                              @Validated(Marker.OnCreate.class) @RequestBody ItemDto itemDto) {
         return itemService.create(userId, itemDto);
     }
 
     @PatchMapping("/{id}")
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long id,
-                              @Valid @RequestBody ItemDto itemDto) {
+                              @RequestBody ItemDto itemDto) {
         itemDto.setId(id);
         return itemService.update(userId, itemDto);
     }

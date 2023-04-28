@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
@@ -12,24 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
-    private User getUserOrThrowException(long id) {
-        return userStorage.get(id)
-                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + id));
-    }
-
-    private void checkEmail(UserDto userDto) {
-        if (userStorage.getAll().stream().anyMatch(x -> x.getEmail().equals((userDto.getEmail())))) {
-            throw new DataAlreadyExistException(userDto.getEmail() + " email уже используется");
-        }
-    }
 
     @Override
     public UserDto create(UserDto userDto) {
@@ -77,5 +62,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteAll() {
         userStorage.deleteAll();
+    }
+
+    private User getUserOrThrowException(long id) {
+        return userStorage.get(id)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + id));
+    }
+
+    private void checkEmail(UserDto userDto) {
+        if (userStorage.getAll().stream().anyMatch(x -> x.getEmail().equals((userDto.getEmail())))) {
+            throw new DataAlreadyExistException(userDto.getEmail() + " email уже используется");
+        }
     }
 }

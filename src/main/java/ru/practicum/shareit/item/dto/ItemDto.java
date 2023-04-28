@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import ru.practicum.shareit.user.dto.Marker;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -14,12 +15,12 @@ import javax.validation.constraints.NotNull;
 public class ItemDto {
     private long id;
 
-    @NotBlank(groups = {Create.class})
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String name;
 
-    @NotBlank(groups = {Create.class})
+    @NotBlank(groups = {Marker.OnCreate.class})
     private String description;
 
-    @NotNull(groups = {Create.class})
+    @NotNull(groups = {Marker.OnCreate.class})
     private Boolean available;
 }

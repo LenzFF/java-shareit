@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -14,24 +14,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private ItemStorage itemStorage;
-    private UserStorage userStorage;
-
-    @Autowired
-    public ItemServiceImpl(ItemStorage itemStorage, UserStorage userStorage) {
-        this.itemStorage = itemStorage;
-        this.userStorage = userStorage;
-    }
-
-    private Item getItemOrThrowException(long userId, long itemId) {
-        userStorage.get(userId)
-                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
-
-        return itemStorage.get(itemId)
-                .orElseThrow(() -> new DataNotFoundException("Вещь не найдена, itemId - " + itemId));
-    }
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
 
 
     @Override
@@ -69,9 +56,14 @@ public class ItemServiceImpl implements ItemService {
             throw new DataNotFoundException("Вещь не найдена, id - " + item.getId());
         }
 
-        if (itemDto.getName() != null && !itemDto.getName().isEmpty()) item.setName(itemDto.getName());
-        if (itemDto.getDescription() != null) item.setDescription(itemDto.getDescription());
-        if (itemDto.getAvailable() != null) item.setAvailable(itemDto.getAvailable());
+        if (itemDto.getName() != null && !itemDto.getName().isBlank())
+            item.setName(itemDto.getName());
+
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank())
+            item.setDescription(itemDto.getDescription());
+
+        if (itemDto.getAvailable() != null)
+            item.setAvailable(itemDto.getAvailable());
 
         return ItemMapper.toItemDto(item);
     }
@@ -88,5 +80,13 @@ public class ItemServiceImpl implements ItemService {
                         || x.getDescription().toLowerCase().contains(str)
                         && x.getAvailable())
                 .collect(Collectors.toList());
+    }
+
+    private Item getItemOrThrowException(long userId, long itemId) {
+        userStorage.get(userId)
+                .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
+
+        return itemStorage.get(itemId)
+                .orElseThrow(() -> new DataNotFoundException("Вещь не найдена, itemId - " + itemId));
     }
 }
