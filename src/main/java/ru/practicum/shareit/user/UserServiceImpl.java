@@ -14,18 +14,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userStorage;
 
     @Override
     public UserDto create(UserDto userDto) {
-        checkEmail(userDto);
-        User user = userStorage.create(UserMapper.fromUserDto(userDto));
+        User user = userStorage.save(UserMapper.fromUserDto(userDto));
         return UserMapper.toUserDto(user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userStorage.getAll().stream()
+        return userStorage.findAll()
+                .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
@@ -37,18 +37,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(long id, UserDto updatedUserDto) {
+
         User user = getUserOrThrowException(id);
 
         if (updatedUserDto.getEmail() != null && !updatedUserDto.getEmail().isBlank()) {
-            if (!user.getEmail().equals(updatedUserDto.getEmail()))
-                checkEmail(updatedUserDto);
-
-            user.setEmail(updatedUserDto.getEmail());
+            if (!user.getEmail().equals(updatedUserDto.getEmail())) {
+                if (userStorage.findByEmail(updatedUserDto.getEmail()).size() > 0) {
+                    throw new DataAlreadyExistException("Email уже используется");
+                }
+                user.setEmail(updatedUserDto.getEmail());
+            }
         }
 
         if (updatedUserDto.getName() != null && !updatedUserDto.getName().isBlank()) {
             user.setName(updatedUserDto.getName());
         }
+
+        userStorage.save(user);
 
         return UserMapper.toUserDto(user);
     }
@@ -56,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(long id) {
         getUserOrThrowException(id);
-        userStorage.delete(id);
+        userStorage.deleteById(id);
     }
 
     @Override
@@ -65,13 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User getUserOrThrowException(long id) {
-        return userStorage.get(id)
+        return userStorage.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + id));
-    }
-
-    private void checkEmail(UserDto userDto) {
-        if (userStorage.getAll().stream().anyMatch(x -> x.getEmail().equals((userDto.getEmail())))) {
-            throw new DataAlreadyExistException(userDto.getEmail() + " email уже используется");
-        }
     }
 }

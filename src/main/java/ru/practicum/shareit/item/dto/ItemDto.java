@@ -5,6 +5,8 @@ import ru.practicum.shareit.user.dto.Marker;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +25,6 @@ public class ItemDto {
 
     @NotNull(groups = {Marker.OnCreate.class})
     private Boolean available;
+
+    private List<CommentDto> comments = new ArrayList<>();
 }
