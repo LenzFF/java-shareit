@@ -27,7 +27,6 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemStorage;
     private final UserRepository userStorage;
     private final BookingRepository bookingStorage;
-
     private final CommentRepository commentRepository;
 
 
