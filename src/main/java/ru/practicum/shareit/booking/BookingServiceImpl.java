@@ -24,7 +24,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public Booking create(BookingDto bookingDto, Long userId) {
+    public Booking create(BookingDto bookingDto, long userId) {
         Booking booking = new Booking();
 
         booking.setItem(itemStorage.findById(bookingDto.getItemId())
@@ -56,7 +56,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public Booking changeStatus(Long userId, Long bookingId, boolean approved) {
+    public Booking changeStatus(long userId, long bookingId, boolean approved) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
 
@@ -81,7 +81,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking get(Long userId, Long bookingId) {
+    public Booking get(long userId, long bookingId) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
 
@@ -96,7 +96,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getUserBookingsByState(Long userId, String state) {
+    public List<Booking> getUserBookingsByState(long userId, String state) {
 
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
@@ -127,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getOwnerBookingsByState(Long userId, String state) {
+    public List<Booking> getOwnerBookingsByState(long userId, String state) {
 
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
