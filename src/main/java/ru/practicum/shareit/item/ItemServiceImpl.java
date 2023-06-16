@@ -40,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
 
         items.forEach(this::addBookings);
 
+
         return items;
     }
 
