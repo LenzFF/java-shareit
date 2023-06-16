@@ -1,21 +1,39 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "items")
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class Item {
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
+
+    @Column(name = "description", nullable = false)
     private String description;
+
+    @Column(name = "available", nullable = false)
     private Boolean available;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User owner;
-    private ItemRequest request;
+
+    @Transient
+    private List<CommentDto> comments;
 
     public Item(long id, String name, String description, boolean available) {
         this.setId(id);
