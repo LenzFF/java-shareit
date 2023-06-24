@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class ItemRequestDtoWithAnswer extends ItemRequestDto{
+public class ItemRequestDtoWithAnswer extends ItemRequestDto {
 
     private List<ItemDto> items = new ArrayList<>();
 }

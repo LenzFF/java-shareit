@@ -233,7 +233,7 @@ public class BookingServiceTest {
         assertThat(newBookingList.size(), equalTo(bookingList.size()));
         assertThat(newBookingList.get(0).getId(), equalTo(bookingList.get(0).getId()));
 
-        newBookingList = bookingService.getUserBookingsByState( bookerDto.getId(), "WAITING", 1, 10);
+        newBookingList = bookingService.getUserBookingsByState(bookerDto.getId(), "WAITING", 1, 10);
         assertThat(newBookingList.size(), equalTo(bookingList.size()));
         assertThat(newBookingList.get(0).getId(), equalTo(bookingList.get(0).getId()));
 
@@ -281,7 +281,7 @@ public class BookingServiceTest {
         assertThat(newBookingList.size(), equalTo(bookingList.size()));
         assertThat(newBookingList.get(0).getId(), equalTo(bookingList.get(0).getId()));
 
-        newBookingList = bookingService.getOwnerBookingsByState( bookerDto.getId(), "WAITING", 1, 10);
+        newBookingList = bookingService.getOwnerBookingsByState(bookerDto.getId(), "WAITING", 1, 10);
         assertThat(newBookingList.size(), equalTo(bookingList.size()));
         assertThat(newBookingList.get(0).getId(), equalTo(bookingList.get(0).getId()));
 
