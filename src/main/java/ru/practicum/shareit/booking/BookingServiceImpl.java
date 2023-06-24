@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -34,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь не доступна для бронирования, id - " + bookingDto.getItemId());
         }
 
-        if (booking.getItem().getId() == userId) {
+        if (booking.getItem().getOwner().getId() == userId) {
             throw new DataNotFoundException("Пользователь не может забронировать свою вещь, id - " + userId);
         }
 
@@ -96,29 +98,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getUserBookingsByState(long userId, String state) {
+    public List<Booking> getUserBookingsByState(long userId, String state, int from, int size) {
+
+        if (from < 0 || size < 1) {
+            throw new RuntimeException("Параметры для выборки должны быть: from >= 0, size > 0");
+        }
+        PageRequest page = PageRequest.of(from / size, size, Sort.by("start").descending());
 
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
 
         switch (state) {
             case "ALL":
-                return bookingStorage.findAllUserBookings(userId);
+                return bookingStorage.findAllUserBookings(userId, page);
 
             case "CURRENT":
-                return bookingStorage.findBookerCurrentBookings(userId);
+                return bookingStorage.findBookerCurrentBookings(userId, page);
 
             case "PAST":
-                return bookingStorage.findBookerPastBookings(userId);
+                return bookingStorage.findBookerPastBookings(userId, page);
 
             case "FUTURE":
-                return bookingStorage.findBookerFutureBookings(userId);
+                return bookingStorage.findBookerFutureBookings(userId, page);
 
             case "REJECTED":
-                return bookingStorage.findByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                return bookingStorage.findByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, page);
 
             case "WAITING":
-                return bookingStorage.findByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                return bookingStorage.findByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, page);
 
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
@@ -127,29 +134,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getOwnerBookingsByState(long userId, String state) {
+    public List<Booking> getOwnerBookingsByState(long userId, String state, int from, int size) {
+
+        if (from < 0 || size < 1) {
+            throw new RuntimeException("Параметры для выборки должны быть: from >= 0, size > 0");
+        }
+        PageRequest page = PageRequest.of(from / size, size, Sort.by("start").descending());
 
         userStorage.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("Пользователь не найден, id - " + userId));
 
         switch (state) {
             case "ALL":
-                return bookingStorage.findByItem_Owner_IdOrderByStartDesc(userId);
+                return bookingStorage.findByItem_Owner_IdOrderByStartDesc(userId, page);
 
             case "CURRENT":
-                return bookingStorage.findOwnerCurrentBookings(userId);
+                return bookingStorage.findOwnerCurrentBookings(userId, page);
 
             case "PAST":
-                return bookingStorage.findOwnerPastBookings(userId);
+                return bookingStorage.findOwnerPastBookings(userId, page);
 
             case "FUTURE":
-                return bookingStorage.findOwnerFutureBookings(userId);
+                return bookingStorage.findOwnerFutureBookings(userId, page);
 
             case "REJECTED":
-                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, page);
 
             case "WAITING":
-                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                return bookingStorage.findByItem_Owner_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, page);
 
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");

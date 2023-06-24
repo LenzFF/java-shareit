@@ -18,12 +18,13 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User requestor;
 
-    private LocalDateTime created = LocalDateTime.now();
+    @Column(name = "creation_date")
+    private LocalDateTime created;
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,53 +15,53 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "from Booking as b " +
             "where b.booker.id = ?1 " +
             "order by b.start desc")
-    List<Booking> findAllUserBookings(Long bookerId);
+    List<Booking> findAllUserBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.booker.id = ?1 " +
             "and b.start <= now() and b.end >= now() " +
             "order by b.start desc")
-    List<Booking> findBookerCurrentBookings(Long bookerId);
+    List<Booking> findBookerCurrentBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.booker.id = ?1 " +
             "and b.start < now() and b.end <= now() " +
             "order by b.start desc")
-    List<Booking> findBookerPastBookings(Long bookerId);
+    List<Booking> findBookerPastBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.booker.id = ?1 and b.start > now() and b.end > now() " +
             "order by b.start desc")
-    List<Booking> findBookerFutureBookings(Long bookerId);
+    List<Booking> findBookerFutureBookings(Long bookerId, Pageable page);
 
-    List<Booking> findByBooker_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status);
+    List<Booking> findByBooker_IdAndStatusOrderByStartDesc(Long bookerId, BookingStatus status, Pageable page);
 
-    List<Booking> findByItem_Owner_IdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
+    List<Booking> findByItem_Owner_IdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status, Pageable page);
 
-    List<Booking> findByItem_Owner_IdOrderByStartDesc(Long ownerId);
+    List<Booking> findByItem_Owner_IdOrderByStartDesc(Long ownerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.owner.id = ?1 " +
             "and b.start <= now() and b.end >= now() " +
             "order by b.start desc")
-    List<Booking> findOwnerCurrentBookings(Long bookerId);
+    List<Booking> findOwnerCurrentBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.owner.id = ?1 " +
             "and b.start < now() and b.end <= now() " +
             "order by b.start desc")
-    List<Booking> findOwnerPastBookings(Long bookerId);
+    List<Booking> findOwnerPastBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.owner.id = ?1 and b.start > now() and b.end > now() " +
             "order by b.start desc")
-    List<Booking> findOwnerFutureBookings(Long bookerId);
+    List<Booking> findOwnerFutureBookings(Long bookerId, Pageable page);
 
     @Query("select b " +
             "from Booking as b " +
