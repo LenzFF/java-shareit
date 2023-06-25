@@ -28,4 +28,10 @@ public class ErrorHandlerTest {
         ErrorResponse exceptionMessage = errorHandler.validationException(new ValidationException("message"));
         assertThat(exceptionMessage.getError(), equalTo("message"));
     }
+
+    @Test
+    void handleIllegalDataException() {
+        ErrorResponse exceptionMessage = errorHandler.handleIllegalDataException(new IllegalDataException("message"));
+        assertThat(exceptionMessage.getError(), equalTo("message"));
+    }
 }
