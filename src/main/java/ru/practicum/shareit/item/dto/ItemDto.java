@@ -27,4 +27,6 @@ public class ItemDto {
     private Boolean available;
 
     private List<CommentDto> comments = new ArrayList<>();
+
+    private long requestId;
 }

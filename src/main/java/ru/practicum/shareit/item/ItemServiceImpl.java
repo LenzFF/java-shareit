@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -27,14 +29,21 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemStorage;
     private final UserRepository userStorage;
     private final BookingRepository bookingStorage;
-    private final CommentRepository commentRepository;
+    private final CommentRepository commentStorage;
+    private final ItemRequestRepository itemRequestStorage;
 
 
     @Override
-    public List<ItemWithBookingsDto> getAllUserItems(long userId) {
+    public List<ItemWithBookingsDto> getAllUserItems(long userId, int from, int size) {
+        if (from < 0 || size < 1) {
+            throw new RuntimeException("Параметры для выборки должны быть: from >= 0, size > 0");
+        }
+
+        PageRequest page = PageRequest.of(from / size, size);
+
         getUserOrThrowException(userId);
 
-        List<ItemWithBookingsDto> items = itemStorage.getByOwnerId(userId).stream()
+        List<ItemWithBookingsDto> items = itemStorage.getByOwnerId(userId, page).stream()
                 .map(this::toItemDtoWithBookings)
                 .collect(Collectors.toList());
 
@@ -50,10 +59,13 @@ public class ItemServiceImpl implements ItemService {
         itemWithBookingsDto.setAvailable(item.getAvailable());
         itemWithBookingsDto.setName(item.getName());
         itemWithBookingsDto.setDescription(item.getDescription());
-        itemWithBookingsDto.setComments(commentRepository.findByItemId(item.getId())
+        itemWithBookingsDto.setComments(commentStorage.findByItemId(item.getId())
                 .stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList()));
+
+
+        if (item.getRequest() != null) itemWithBookingsDto.setRequestId(item.getRequest().getId());
 
         return itemWithBookingsDto;
     }
@@ -85,9 +97,11 @@ public class ItemServiceImpl implements ItemService {
     public ItemWithBookingsDto get(long userId, long itemId) {
         Item item = getItemOrThrowException(userId, itemId);
         ItemWithBookingsDto itemWithBookingsDto = this.toItemDtoWithBookings(item);
+
         if (item.getOwner().getId() == userId) {
             addBookings(itemWithBookingsDto);
         }
+
         return itemWithBookingsDto;
     }
 
@@ -99,6 +113,11 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setOwner(user);
+
+        if (itemDto.getRequestId() != 0) {
+            item.setRequest(itemRequestStorage.findById(itemDto.getRequestId()));
+        }
+
         return ItemMapper.toItemDto(itemStorage.save(item));
     }
 
@@ -126,10 +145,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(long userId, String text) {
+    public List<ItemDto> searchItem(long userId, String text, int from, int size) {
+        if (from < 0 || size < 1) {
+            throw new RuntimeException("Параметры для выборки должны быть: from >= 0, size > 0");
+        }
+
+        PageRequest page = PageRequest.of(from / size, size);
+
         if (text.isBlank()) return Collections.EMPTY_LIST;
 
-        return itemStorage.searchText(text)
+        return itemStorage.searchText(text, page)
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -146,7 +171,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Бронирования не найдены");
         }
 
-        commentRepository.save(comment);
+        commentStorage.save(comment);
 
         return CommentMapper.toCommentDto(comment);
     }
